@@ -1,0 +1,97 @@
+const getRandomIndex = (arr) => {
+  return Math.floor(Math.random() * arr.length);
+}
+  
+// Returns a random DNA base
+const dnaBases = ['A', 'T', 'C', 'G'];
+
+const returnRandBase = () => {
+  return dnaBases[getRandomIndex(dnaBases)];
+  // return dnaBases[Math.floor(Math.random() * 4)] 
+}
+    
+// Returns a random single strand of DNA containing 15 bases
+const mockUpStrand = () => {
+  const newStrand = [];
+
+  for (let i = 0; i < 15; i++) {
+    newStrand.push(returnRandBase());
+  }
+
+  return newStrand;
+}
+    
+// Factory function to create objects that simulates the DNA
+const pAequorFactory = (specimenNum, dna) => {
+  function mutate() {
+        const randomIndex = getRandomIndex(this.dna);
+        //const randomIndex = Math.floor(Math.random() * this.dna.length);
+        const randomLetter = this.dna[randomIndex];
+        const otherLettersArr = dnaBases.filter((elemVal) => elemVal !== randomLetter);
+        const newLetter = otherLettersArr[getRandomIndex(otherLettersArr)] ;
+        //const newLetter = otherLettersArr[Math.floor(Math.random() * otherLettersArr.length)] ;
+        this.dna[randomIndex] = newLetter;
+        return this.dna;
+      }
+
+  function compareDNA(pAequor) {
+        let sameLetNumb = 0;
+        for (let counter = 0; counter < pAequor.dna.length; counter++) {
+          const letter1 = pAequor.dna[counter]
+          const letter2 = this.dna[counter]
+          if (letter1 === letter2) {
+            sameLetNumb += 1;
+          }
+        }
+        let percentSameLet =  `${Math.round((sameLetNumb / pAequor.dna.length) * 100)}%`;
+        // console.log(percentSameLet);
+      }
+
+  function willLikelySurvive() {
+        let sumBaseCorG = 0;
+        for (let counter = 0; counter < this.dna.length; counter++) {
+          const baseCorG = this.dna[counter]
+          if (baseCorG === 'C' || baseCorG === 'G') {
+            sumBaseCorG += 1;
+          }
+        }
+        let percentLetterCorG =  Math.round((sumBaseCorG / this.dna.length) * 100);
+        // console.log(`percentLetterCorG: ${percentLetterCorG}`);
+        return percentLetterCorG >= 60
+      }
+  return {
+        specimenNum,
+        dna,
+        mutate,
+        compareDNA,
+        willLikelySurvive
+      }
+}
+
+// Function that creates 30 instances
+function create30Instances() {
+  let arrayOf30 = [];
+
+  while (arrayOf30.length < 30) {
+    function numberOfInstance() {
+      return arrayOf30.length + 1;
+    }
+
+    let newInstance30 = pAequorFactory(numberOfInstance(), mockUpStrand());
+
+    if (newInstance30.willLikelySurvive()) {
+      arrayOf30.push(newInstance30);
+    }
+  }
+
+  return arrayOf30;
+}
+
+const arrOf30 = create30Instances();
+console.log(arrOf30.map(
+  (dna) => ({
+    specimenNum: dna.specimenNum,
+    willSurvive: dna.willLikelySurvive(),
+    dna: dna.dna,
+  }))
+);
